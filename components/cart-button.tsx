@@ -17,10 +17,10 @@ export function CartButton() {
     <button
       type="button"
       onClick={toggleCart}
-      className="inline-flex items-center gap-2 px-3.5 py-2 rounded-full border border-neutral-200/80 bg-neutral-100/80 hover:bg-neutral-200/80 dark:border-neutral-800 dark:bg-neutral-900/80 dark:hover:bg-neutral-800 text-xs font-semibold text-neutral-900 dark:text-neutral-100 transition-all cursor-pointer"
+      className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-[#E5E6E3] dark:border-[#2D3035] bg-[#ECEDEA] dark:bg-[#24272B] hover:bg-[#E5E6E3] dark:hover:bg-[#2D3035] text-xs font-medium uppercase tracking-widest text-[#17181A] dark:text-[#F7F7F5] transition-all cursor-pointer"
       aria-label={`Shopping Bag (${totalItems} items)`}
     >
-      <ShoppingBag className="w-4 h-4 text-neutral-700 dark:text-neutral-300" />
+      <ShoppingBag className="w-3.5 h-3.5 text-[#666A70] dark:text-[#9DA2A9]" />
       <span>Bag ({totalItems})</span>
     </button>
   );

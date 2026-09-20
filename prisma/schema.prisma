@@ -1,0 +1,229 @@
+// prisma/schema.prisma
+// Mivo — Relational database schema for Assignment 2
+// Supports: Users, Roles, Orders, OrderItems, AuditLogs, EmailEvents
+// Better Auth tables: User, Session, Account, Verification
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────────
+// ENUMS
+// ─────────────────────────────────────────────
+
+enum Role {
+  GUEST
+  MEMBER
+  ADMIN
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  UPI
+  CARD
+  COD
+}
+
+enum AuditAction {
+  USER_REGISTERED
+  USER_SIGNED_IN
+  USER_SIGNED_OUT
+  ORDER_CREATED
+  ORDER_STATUS_UPDATED
+  ADMIN_ORDER_VIEWED
+  ADMIN_AUDIT_VIEWED
+  EMAIL_SENT
+  WEBHOOK_RECEIVED
+}
+
+enum EmailEventType {
+  SENT
+  DELIVERED
+  BOUNCED
+  FAILED
+  COMPLAINED
+  OPENED
+  CLICKED
+}
+
+// ─────────────────────────────────────────────
+// BETTER AUTH REQUIRED TABLES
+// ─────────────────────────────────────────────
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Mivo extensions
+  role          Role      @default(MEMBER)
+  phone         String?
+
+  // Relations
+  sessions      Session[]
+  accounts      Account[]
+  orders        Order[]
+  auditLogs     AuditLog[]
+  emailEvents   EmailEvent[]
+
+  @@map("users")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("accounts")
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("verifications")
+}
+
+// ─────────────────────────────────────────────
+// MIVO DOMAIN TABLES
+// ─────────────────────────────────────────────
+
+model Order {
+  id            String        @id @default(cuid())
+  orderRef      String        @unique // e.g. "MIVO-48219"
+  status        OrderStatus   @default(PENDING)
+  paymentMethod PaymentMethod @default(UPI)
+  subtotal      Int           // in paise (INR × 100)
+  total         Int           // in paise
+
+  // Shipping details — stored denormalized for order record integrity
+  customerName  String
+  customerEmail String
+  customerPhone String
+  address       String
+  city          String
+  state         String
+  pincode       String
+
+  // Optional link to authenticated user
+  userId        String?
+  user          User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  items         OrderItem[]
+  auditLogs     AuditLog[]
+  emailEvents   EmailEvent[]
+
+  @@index([userId])
+  @@index([orderRef])
+  @@index([status])
+  @@map("orders")
+}
+
+model OrderItem {
+  id          String  @id @default(cuid())
+  orderId     String
+  order       Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  // Reference to static product catalogue
+  productId   String  // e.g. "mivo-001"
+  productName String  // denormalized for order record integrity
+  unitPrice   Int     // in paise at time of purchase
+  quantity    Int
+
+  @@index([orderId])
+  @@map("order_items")
+}
+
+model AuditLog {
+  id        String      @id @default(cuid())
+  action    AuditAction
+  metadata  Json?       // flexible additional context
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime    @default(now())
+
+  // Optional relations
+  userId    String?
+  user      User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  orderId   String?
+  order     Order?      @relation(fields: [orderId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+model EmailEvent {
+  id          String         @id @default(cuid())
+  resendId    String         @unique // Resend message ID — prevents duplicate processing
+  type        EmailEventType
+  recipient   String
+  subject     String?
+  metadata    Json?
+  createdAt   DateTime       @default(now())
+
+  // Optional relations
+  userId      String?
+  user        User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  orderId     String?
+  order       Order?         @relation(fields: [orderId], references: [id], onDelete: SetNull)
+
+  @@index([resendId])
+  @@index([orderId])
+  @@index([type])
+  @@map("email_events")
+}

@@ -17,10 +17,8 @@ import { toast } from "sonner";
 import { checkoutSchema, CheckoutFormData } from "@/lib/schemas/checkout";
 import { processCheckoutOrder } from "@/app/actions/checkout";
 import { useCartStore } from "@/store/cart-store";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
 import { useHasMounted } from "@/lib/use-mounted";
 
 export function CheckoutForm() {
@@ -33,7 +31,6 @@ export function CheckoutForm() {
   const bagItems = useCartStore((state) => state.items);
   const buyNowItems = useCartStore((state) => state.buyNowItems);
 
-  // Use isolated buyNowItems when in Buy Now flow, otherwise the persistent bag
   const mounted = useHasMounted();
 
   const activeItems = mounted
@@ -77,7 +74,6 @@ export function CheckoutForm() {
     setServerError(null);
 
     try {
-      // Send only IDs + quantities — server recalculates prices
       const cartItemsPayload = activeItems.map((item) => ({
         id: item.product.id,
         quantity: item.quantity,
@@ -91,10 +87,8 @@ export function CheckoutForm() {
         });
 
         if (isBuyNow) {
-          // Clear only the Buy Now selection; leave persistent bag intact
           clearBuyNow();
         } else {
-          // Clear the full persistent bag
           clearCart();
         }
 
@@ -115,15 +109,14 @@ export function CheckoutForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 text-[#F3EFE7]">
       {/* Buy Now Flow Banner */}
       {isBuyNow && buyNowItems.length > 0 && (
-        <div className="flex items-center gap-3 rounded-2xl border border-neutral-200 bg-neutral-50 p-4 text-sm text-neutral-700 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-300">
-          <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+        <div className="flex items-center gap-3 rounded-2xl border border-[#262626] bg-[#141414] p-4 text-xs text-[#F3EFE7]">
+          <CheckCircle2 className="h-5 w-5 shrink-0 text-[#C5A880]" />
           <p>
-            <span className="font-semibold">Quick Checkout:</span> Checking out{" "}
-            <span className="font-semibold">{buyNowItems[0]?.product.name}</span> directly.
-            Your bag items remain saved.
+            <span className="font-semibold uppercase tracking-wider text-[#C5A880]">Direct Checkout:</span> Checking out{" "}
+            <span className="font-semibold">{buyNowItems[0]?.product.name}</span> directly. Your bag items remain saved.
           </p>
         </div>
       )}
@@ -131,31 +124,31 @@ export function CheckoutForm() {
       {serverError && (
         <div
           role="alert"
-          className="flex items-center gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-300"
+          className="flex items-center gap-3 rounded-2xl border border-red-900/50 bg-red-950/40 p-4 text-xs text-red-300"
         >
-          <AlertCircle className="h-5 w-5 shrink-0 text-red-600 dark:text-red-400" />
+          <AlertCircle className="h-5 w-5 shrink-0 text-red-400" />
           <p>{serverError}</p>
         </div>
       )}
 
       {/* 1. Contact Information */}
       <div className="space-y-4">
-        <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-100 pb-2 border-b border-neutral-200 dark:border-neutral-800">
+        <h2 className="font-serif text-lg font-normal text-[#F3EFE7] pb-2 border-b border-[#262626]">
           1. Contact Information
         </h2>
 
         <div className="space-y-1.5">
-          <Label htmlFor="fullName" className="text-xs font-medium">Full Name</Label>
+          <Label htmlFor="fullName" className="text-xs font-mono uppercase tracking-wider text-neutral-400">Full Name *</Label>
           <Input
             id="fullName"
             placeholder="e.g. Tanay Sharma"
-            className="rounded-xl"
+            className="rounded-xl border-[#262626] bg-[#141414] text-[#F3EFE7] placeholder:text-neutral-600 focus:border-[#C5A880]"
             aria-invalid={!!errors.fullName}
             aria-describedby={errors.fullName ? "fullName-error" : undefined}
             {...register("fullName")}
           />
           {errors.fullName && (
-            <p id="fullName-error" className="text-xs text-red-600 dark:text-red-400">
+            <p id="fullName-error" className="text-xs text-red-400 font-sans">
               {errors.fullName.message}
             </p>
           )}
@@ -163,36 +156,36 @@ export function CheckoutForm() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1.5">
-            <Label htmlFor="email" className="text-xs font-medium">Email Address</Label>
+            <Label htmlFor="email" className="text-xs font-mono uppercase tracking-wider text-neutral-400">Email Address *</Label>
             <Input
               id="email"
               type="email"
               placeholder="tanay@example.com"
-              className="rounded-xl"
+              className="rounded-xl border-[#262626] bg-[#141414] text-[#F3EFE7] placeholder:text-neutral-600 focus:border-[#C5A880]"
               aria-invalid={!!errors.email}
               aria-describedby={errors.email ? "email-error" : undefined}
               {...register("email")}
             />
             {errors.email && (
-              <p id="email-error" className="text-xs text-red-600 dark:text-red-400">
+              <p id="email-error" className="text-xs text-red-400 font-sans">
                 {errors.email.message}
               </p>
             )}
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="phone" className="text-xs font-medium">Mobile Phone (+91)</Label>
+            <Label htmlFor="phone" className="text-xs font-mono uppercase tracking-wider text-neutral-400">Mobile Phone (+91) *</Label>
             <Input
               id="phone"
               type="tel"
               placeholder="9876543210"
-              className="rounded-xl"
+              className="rounded-xl border-[#262626] bg-[#141414] text-[#F3EFE7] placeholder:text-neutral-600 focus:border-[#C5A880]"
               aria-invalid={!!errors.phone}
               aria-describedby={errors.phone ? "phone-error" : undefined}
               {...register("phone")}
             />
             {errors.phone && (
-              <p id="phone-error" className="text-xs text-red-600 dark:text-red-400">
+              <p id="phone-error" className="text-xs text-red-400 font-sans">
                 {errors.phone.message}
               </p>
             )}
@@ -202,22 +195,22 @@ export function CheckoutForm() {
 
       {/* 2. Delivery Address */}
       <div className="space-y-4">
-        <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-100 pb-2 border-b border-neutral-200 dark:border-neutral-800">
+        <h2 className="font-serif text-lg font-normal text-[#F3EFE7] pb-2 border-b border-[#262626]">
           2. Delivery Address
         </h2>
 
         <div className="space-y-1.5">
-          <Label htmlFor="address" className="text-xs font-medium">Street Address</Label>
+          <Label htmlFor="address" className="text-xs font-mono uppercase tracking-wider text-neutral-400">Street Address *</Label>
           <Input
             id="address"
             placeholder="Flat No, Building, Street, Landmark"
-            className="rounded-xl"
+            className="rounded-xl border-[#262626] bg-[#141414] text-[#F3EFE7] placeholder:text-neutral-600 focus:border-[#C5A880]"
             aria-invalid={!!errors.address}
             aria-describedby={errors.address ? "address-error" : undefined}
             {...register("address")}
           />
           {errors.address && (
-            <p id="address-error" className="text-xs text-red-600 dark:text-red-400">
+            <p id="address-error" className="text-xs text-red-400 font-sans">
               {errors.address.message}
             </p>
           )}
@@ -225,51 +218,51 @@ export function CheckoutForm() {
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="space-y-1.5">
-            <Label htmlFor="city" className="text-xs font-medium">City</Label>
+            <Label htmlFor="city" className="text-xs font-mono uppercase tracking-wider text-neutral-400">City *</Label>
             <Input
               id="city"
               placeholder="Mumbai"
-              className="rounded-xl"
+              className="rounded-xl border-[#262626] bg-[#141414] text-[#F3EFE7] placeholder:text-neutral-600 focus:border-[#C5A880]"
               aria-invalid={!!errors.city}
               aria-describedby={errors.city ? "city-error" : undefined}
               {...register("city")}
             />
             {errors.city && (
-              <p id="city-error" className="text-xs text-red-600 dark:text-red-400">
+              <p id="city-error" className="text-xs text-red-400 font-sans">
                 {errors.city.message}
               </p>
             )}
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="state" className="text-xs font-medium">State</Label>
+            <Label htmlFor="state" className="text-xs font-mono uppercase tracking-wider text-neutral-400">State *</Label>
             <Input
               id="state"
               placeholder="Maharashtra"
-              className="rounded-xl"
+              className="rounded-xl border-[#262626] bg-[#141414] text-[#F3EFE7] placeholder:text-neutral-600 focus:border-[#C5A880]"
               aria-invalid={!!errors.state}
               aria-describedby={errors.state ? "state-error" : undefined}
               {...register("state")}
             />
             {errors.state && (
-              <p id="state-error" className="text-xs text-red-600 dark:text-red-400">
+              <p id="state-error" className="text-xs text-red-400 font-sans">
                 {errors.state.message}
               </p>
             )}
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="pincode" className="text-xs font-medium">6-digit PIN Code</Label>
+            <Label htmlFor="pincode" className="text-xs font-mono uppercase tracking-wider text-neutral-400">6-digit PIN *</Label>
             <Input
               id="pincode"
               placeholder="400001"
-              className="rounded-xl"
+              className="rounded-xl border-[#262626] bg-[#141414] text-[#F3EFE7] placeholder:text-neutral-600 focus:border-[#C5A880]"
               aria-invalid={!!errors.pincode}
               aria-describedby={errors.pincode ? "pincode-error" : undefined}
               {...register("pincode")}
             />
             {errors.pincode && (
-              <p id="pincode-error" className="text-xs text-red-600 dark:text-red-400">
+              <p id="pincode-error" className="text-xs text-red-400 font-sans">
                 {errors.pincode.message}
               </p>
             )}
@@ -279,12 +272,11 @@ export function CheckoutForm() {
 
       {/* 3. Payment Method */}
       <div className="space-y-4">
-        <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-100 pb-2 border-b border-neutral-200 dark:border-neutral-800">
+        <h2 className="font-serif text-lg font-normal text-[#F3EFE7] pb-2 border-b border-[#262626]">
           3. Payment Method
         </h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {/* UPI */}
           <div
             role="radio"
             aria-checked={selectedPayment === "upi"}
@@ -293,23 +285,22 @@ export function CheckoutForm() {
             onClick={() => setValue("paymentMethod", "upi")}
             className={`cursor-pointer flex flex-col justify-between p-4 rounded-2xl border transition-all ${
               selectedPayment === "upi"
-                ? "border-neutral-900 bg-neutral-50 dark:border-white dark:bg-neutral-900 ring-1 ring-neutral-900 dark:ring-white"
-                : "border-neutral-200/80 dark:border-neutral-800 hover:border-neutral-300"
+                ? "border-[#C5A880] bg-[#141414] ring-1 ring-[#C5A880]"
+                : "border-[#262626] bg-[#0A0A0A] hover:border-[#C5A880]"
             }`}
           >
             <div className="flex items-center justify-between">
-              <QrCode className="w-5 h-5 text-neutral-700 dark:text-neutral-300" />
+              <QrCode className="w-5 h-5 text-[#C5A880]" />
               {selectedPayment === "upi" && (
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                <CheckCircle2 className="w-4 h-4 text-[#C5A880]" />
               )}
             </div>
             <div className="mt-3">
-              <p className="font-semibold text-xs text-neutral-900 dark:text-white">UPI / QR</p>
+              <p className="font-semibold text-xs text-[#F3EFE7]">UPI / QR</p>
               <p className="text-[10px] text-neutral-500">GPay, PhonePe, Paytm</p>
             </div>
           </div>
 
-          {/* Card */}
           <div
             role="radio"
             aria-checked={selectedPayment === "card"}
@@ -318,23 +309,22 @@ export function CheckoutForm() {
             onClick={() => setValue("paymentMethod", "card")}
             className={`cursor-pointer flex flex-col justify-between p-4 rounded-2xl border transition-all ${
               selectedPayment === "card"
-                ? "border-neutral-900 bg-neutral-50 dark:border-white dark:bg-neutral-900 ring-1 ring-neutral-900 dark:ring-white"
-                : "border-neutral-200/80 dark:border-neutral-800 hover:border-neutral-300"
+                ? "border-[#C5A880] bg-[#141414] ring-1 ring-[#C5A880]"
+                : "border-[#262626] bg-[#0A0A0A] hover:border-[#C5A880]"
             }`}
           >
             <div className="flex items-center justify-between">
-              <CreditCard className="w-5 h-5 text-neutral-700 dark:text-neutral-300" />
+              <CreditCard className="w-5 h-5 text-[#C5A880]" />
               {selectedPayment === "card" && (
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                <CheckCircle2 className="w-4 h-4 text-[#C5A880]" />
               )}
             </div>
             <div className="mt-3">
-              <p className="font-semibold text-xs text-neutral-900 dark:text-white">Card Payment</p>
+              <p className="font-semibold text-xs text-[#F3EFE7]">Card Payment</p>
               <p className="text-[10px] text-neutral-500">Visa, Mastercard, RuPay</p>
             </div>
           </div>
 
-          {/* COD */}
           <div
             role="radio"
             aria-checked={selectedPayment === "cod"}
@@ -343,18 +333,18 @@ export function CheckoutForm() {
             onClick={() => setValue("paymentMethod", "cod")}
             className={`cursor-pointer flex flex-col justify-between p-4 rounded-2xl border transition-all ${
               selectedPayment === "cod"
-                ? "border-neutral-900 bg-neutral-50 dark:border-white dark:bg-neutral-900 ring-1 ring-neutral-900 dark:ring-white"
-                : "border-neutral-200/80 dark:border-neutral-800 hover:border-neutral-300"
+                ? "border-[#C5A880] bg-[#141414] ring-1 ring-[#C5A880]"
+                : "border-[#262626] bg-[#0A0A0A] hover:border-[#C5A880]"
             }`}
           >
             <div className="flex items-center justify-between">
-              <Banknote className="w-5 h-5 text-neutral-700 dark:text-neutral-300" />
+              <Banknote className="w-5 h-5 text-[#C5A880]" />
               {selectedPayment === "cod" && (
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                <CheckCircle2 className="w-4 h-4 text-[#C5A880]" />
               )}
             </div>
             <div className="mt-3">
-              <p className="font-semibold text-xs text-neutral-900 dark:text-white">Cash on Delivery</p>
+              <p className="font-semibold text-xs text-[#F3EFE7]">Cash on Delivery</p>
               <p className="text-[10px] text-neutral-500">Pay at your doorstep</p>
             </div>
           </div>
@@ -362,11 +352,10 @@ export function CheckoutForm() {
       </div>
 
       {/* Submit */}
-      <Button
+      <button
         type="submit"
         disabled={isSubmitting || activeItems.length === 0}
-        size="lg"
-        className="w-full py-6 text-sm font-semibold rounded-xl gap-2 cursor-pointer shadow-md bg-neutral-900 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-100"
+        className="w-full py-4 text-xs font-bold uppercase tracking-wider rounded-full gap-2 cursor-pointer inline-flex items-center justify-center bg-[#F3EFE7] text-[#0A0A0A] hover:bg-[#C5A880] transition-colors shadow-lg disabled:opacity-50"
       >
         {isSubmitting ? (
           <>
@@ -379,7 +368,7 @@ export function CheckoutForm() {
             <ArrowRight className="w-4 h-4" />
           </>
         )}
-      </Button>
+      </button>
     </form>
   );
 }

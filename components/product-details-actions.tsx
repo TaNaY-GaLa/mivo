@@ -7,7 +7,6 @@ import { toast } from "sonner";
 import { Product } from "@/lib/products";
 import { formatPrice } from "@/lib/utils";
 import { useCartStore } from "@/store/cart-store";
-import { Button } from "@/components/ui/button";
 
 interface ProductDetailsActionsProps {
   product: Product;
@@ -30,30 +29,29 @@ export function ProductDetailsActions({ product }: ProductDetailsActionsProps) {
   };
 
   const handleBuyNow = () => {
-    // Set isolated Buy Now selection — does NOT touch persistent bag
     setBuyNow(product, quantity);
     router.push("/checkout?flow=buynow");
   };
 
   return (
-    <div className="space-y-6 pt-6 border-t border-neutral-200 dark:border-neutral-800">
+    <div className="space-y-6 pt-6 border-t border-[#E5E6E3] dark:border-[#2D3035]">
       <div className="flex items-center gap-6">
-        <div className="flex items-center border border-neutral-300 dark:border-neutral-700 rounded-xl bg-white dark:bg-neutral-900 p-1">
+        <div className="flex items-center border border-[#E5E6E3] dark:border-[#2D3035] rounded-md bg-[#ECEDEA] dark:bg-[#24272B] p-1">
           <button
             type="button"
             onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-            className="p-2 text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white rounded-lg transition-colors cursor-pointer"
+            className="p-2 text-[#666A70] dark:text-[#9DA2A9] hover:text-[#17181A] dark:hover:text-[#F7F7F5] rounded-md transition-colors cursor-pointer"
             aria-label="Decrease quantity"
           >
             <Minus className="w-4 h-4" />
           </button>
-          <span className="w-12 text-center text-sm font-bold text-neutral-900 dark:text-white">
+          <span className="w-10 text-center text-sm font-semibold text-[#17181A] dark:text-[#F7F7F5]">
             {quantity}
           </span>
           <button
             type="button"
             onClick={() => setQuantity((q) => q + 1)}
-            className="p-2 text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white rounded-lg transition-colors cursor-pointer"
+            className="p-2 text-[#666A70] dark:text-[#9DA2A9] hover:text-[#17181A] dark:hover:text-[#F7F7F5] rounded-md transition-colors cursor-pointer"
             aria-label="Increase quantity"
           >
             <Plus className="w-4 h-4" />
@@ -61,39 +59,42 @@ export function ProductDetailsActions({ product }: ProductDetailsActionsProps) {
         </div>
 
         <div className="flex flex-col">
-          <span className="text-xs text-neutral-500 font-mono">Subtotal</span>
-          <span className="text-xl font-bold text-neutral-900 dark:text-white">
+          <span className="text-[10px] text-[#666A70] dark:text-[#9DA2A9] uppercase tracking-widest font-semibold">Subtotal</span>
+          <span className="text-xl font-semibold text-[#17181A] dark:text-[#F7F7F5]">
             {formatPrice(product.price * quantity)}
           </span>
         </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <Button
+        <button
+          type="button"
           onClick={handleAddToCart}
-          variant="outline"
-          size="lg"
-          className="w-full py-6 rounded-xl text-sm font-semibold gap-2 cursor-pointer"
+          className={`inline-flex items-center justify-center gap-2 rounded-md py-3.5 px-6 text-xs font-semibold uppercase tracking-widest transition-all cursor-pointer border ${
+            added
+              ? "bg-emerald-700 text-white border-emerald-700"
+              : "bg-[#ECEDEA] dark:bg-[#24272B] text-[#17181A] dark:text-[#F7F7F5] border-[#E5E6E3] dark:border-[#2D3035] hover:bg-[#A8B2A5] hover:text-[#17181A]"
+          }`}
         >
           {added ? (
             <>
-              <Check className="w-4 h-4 text-emerald-600" /> Added to Bag
+              <Check className="w-4 h-4" /> Added to Bag
             </>
           ) : (
             <>
               <ShoppingBag className="w-4 h-4" /> Add to Bag
             </>
           )}
-        </Button>
+        </button>
 
-        <Button
+        <button
+          type="button"
           onClick={handleBuyNow}
-          size="lg"
-          className="w-full py-6 rounded-xl text-sm font-semibold gap-2 bg-neutral-900 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-100 cursor-pointer shadow-md"
+          className="inline-flex items-center justify-center gap-2 rounded-md py-3.5 px-6 text-xs font-semibold uppercase tracking-widest bg-[#17181A] dark:bg-[#F7F7F5] text-[#F7F7F5] dark:text-[#17181A] hover:bg-[#666A70] dark:hover:bg-[#E5E6E3] transition-all cursor-pointer"
         >
           Buy Now
           <ArrowRight className="w-4 h-4" />
-        </Button>
+        </button>
       </div>
     </div>
   );

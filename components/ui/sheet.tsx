@@ -5,10 +5,6 @@ import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// Radix Dialog re-used as a Sheet (side drawer) primitive.
-// Provides: portal rendering, accessible dialog semantics,
-// focus trap, Escape-to-close, screen reader announce.
-
 interface SheetProps {
   isOpen: boolean;
   onClose: () => void;
@@ -32,46 +28,43 @@ export function Sheet({ isOpen, onClose, title, description, children }: SheetPr
         {/* Overlay */}
         <DialogPrimitive.Overlay
           className={cn(
-            "fixed inset-0 z-40 bg-black/50 backdrop-blur-xs",
+            "fixed inset-0 z-40 bg-[#0A0A0A]/80 backdrop-blur-sm",
             "data-[state=open]:animate-in data-[state=open]:fade-in-0",
             "data-[state=closed]:animate-out data-[state=closed]:fade-out-0",
-            "duration-200"
+            "duration-300"
           )}
         />
 
         {/* Sheet Panel — slides in from right */}
         <DialogPrimitive.Content
           className={cn(
-            "fixed inset-y-0 right-0 z-50 flex h-full w-full sm:w-[420px] max-w-full",
-            "flex-col border-l border-neutral-200 bg-white p-6 shadow-2xl",
-            "dark:border-neutral-800 dark:bg-neutral-900",
+            "fixed inset-y-0 right-0 z-50 flex h-full w-full sm:w-[440px] max-w-full",
+            "flex-col border-l border-[#262626] bg-[#141414] p-6 shadow-2xl text-[#F3EFE7]",
             "data-[state=open]:animate-in data-[state=open]:slide-in-from-right-full",
             "data-[state=closed]:animate-out data-[state=closed]:slide-out-to-right-full",
-            "duration-200"
+            "duration-300 ease-out"
           )}
-          // Prevent clicks inside the panel from closing the sheet
           onPointerDownOutside={(e) => e.preventDefault()}
           onInteractOutside={(e) => {
-            // Close only when clicking the Overlay, not anything inside
             const target = e.target as HTMLElement;
             if (target.closest("[data-radix-dialog-content]")) return;
             onClose();
           }}
         >
           {/* Header */}
-          <div className="flex items-center justify-between pb-4 border-b border-neutral-200/80 dark:border-neutral-800 shrink-0">
+          <div className="flex items-center justify-between pb-4 border-b border-[#262626] shrink-0">
             <div>
-              <DialogPrimitive.Title className="text-lg font-serif font-semibold text-neutral-900 dark:text-neutral-100">
+              <DialogPrimitive.Title className="text-xl font-serif font-normal text-[#F3EFE7]">
                 {title}
               </DialogPrimitive.Title>
               {description && (
-                <DialogPrimitive.Description className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5 font-sans">
+                <DialogPrimitive.Description className="text-xs text-neutral-400 mt-0.5 font-sans uppercase font-mono tracking-wider">
                   {description}
                 </DialogPrimitive.Description>
               )}
             </div>
             <DialogPrimitive.Close
-              className="rounded-xl p-2 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-100 transition-colors cursor-pointer"
+              className="rounded-xl p-2 text-neutral-400 hover:bg-[#1A1A1A] hover:text-[#F3EFE7] transition-colors cursor-pointer"
               aria-label="Close bag drawer"
             >
               <X className="h-5 w-5" aria-hidden="true" />
