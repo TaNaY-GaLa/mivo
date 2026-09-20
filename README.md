@@ -105,9 +105,3 @@ mivo/
     └── cart-store.ts            # Zustand persistent client store
 ```
 
----
-
-## 📄 Documentation Links
-
-* [Technical Report](docs/technical-report.md)
-* [Viva Voce Q&A Guide](docs/viva.md)
