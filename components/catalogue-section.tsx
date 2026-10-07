@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { Search, X } from "lucide-react";
 import { Product } from "@/lib/products";
 import { ProductCard } from "@/components/product-card";
 
@@ -15,13 +16,23 @@ export function CatalogueSection({ products }: CatalogueSectionProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const currentCategory = (searchParams.get("category") || "ALL").toUpperCase();
+  const [searchQuery, setSearchQuery] = useState("");
 
   const filteredProducts = useMemo(() => {
-    if (currentCategory === "ALL") return products;
-    return products.filter(
-      (p) => p.category.toUpperCase() === currentCategory
-    );
-  }, [products, currentCategory]);
+    return products.filter((p) => {
+      const matchesCategory =
+        currentCategory === "ALL" || p.category.toUpperCase() === currentCategory;
+      
+      const query = searchQuery.trim().toLowerCase();
+      const matchesSearch =
+        !query ||
+        p.name.toLowerCase().includes(query) ||
+        p.description.toLowerCase().includes(query) ||
+        p.category.toLowerCase().includes(query);
+
+      return matchesCategory && matchesSearch;
+    });
+  }, [products, currentCategory, searchQuery]);
 
   const handleSelectTab = (tab: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -47,25 +58,49 @@ export function CatalogueSection({ products }: CatalogueSectionProps) {
           </h2>
         </div>
 
-        {/* Category Filter Tabs */}
-        <div className="flex items-center gap-2 sm:gap-4 overflow-x-auto no-scrollbar pb-1">
-          {CATEGORY_TABS.map((tab) => {
-            const isActive = currentCategory === tab;
-            return (
+        {/* Search Bar & Category Filter Tabs */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+          {/* Instant Search Input */}
+          <div className="relative flex-1 sm:w-64">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#666A70] dark:text-[#9DA2A9]" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search catalogue..."
+              className="w-full rounded-full border border-[#E5E6E3] dark:border-[#2D3035] bg-[#FFFFFF] dark:bg-[#1E2023] pl-9 pr-8 py-1.5 text-xs text-[#17181A] dark:text-[#F7F7F5] placeholder:text-[#666A70] focus:outline-none focus:ring-1 focus:ring-[#17181A] dark:focus:ring-[#F7F7F5]"
+            />
+            {searchQuery && (
               <button
-                key={tab}
                 type="button"
-                onClick={() => handleSelectTab(tab)}
-                className={`text-xs font-medium uppercase tracking-widest px-4 py-2 rounded-full transition-all cursor-pointer whitespace-nowrap ${
-                  isActive
-                    ? "bg-[#17181A] text-[#F7F7F5] dark:bg-[#F7F7F5] dark:text-[#17181A] shadow-sm font-semibold"
-                    : "text-[#666A70] dark:text-[#9DA2A9] hover:bg-[#ECEDEA] dark:hover:bg-[#24272B] hover:text-[#17181A] dark:hover:text-[#F7F7F5]"
-                }`}
+                onClick={() => setSearchQuery("")}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 text-[#666A70] hover:text-[#17181A] dark:hover:text-[#F7F7F5]"
               >
-                {tab === "ALL" ? "All Products" : tab}
+                <X className="h-3 w-3" />
               </button>
-            );
-          })}
+            )}
+          </div>
+
+          {/* Category Tabs */}
+          <div className="flex items-center gap-2 sm:gap-3 overflow-x-auto no-scrollbar pb-1">
+            {CATEGORY_TABS.map((tab) => {
+              const isActive = currentCategory === tab;
+              return (
+                <button
+                  key={tab}
+                  type="button"
+                  onClick={() => handleSelectTab(tab)}
+                  className={`text-xs font-medium uppercase tracking-widest px-4 py-2 rounded-full transition-all cursor-pointer whitespace-nowrap ${
+                    isActive
+                      ? "bg-[#17181A] text-[#F7F7F5] dark:bg-[#F7F7F5] dark:text-[#17181A] shadow-sm font-semibold"
+                      : "text-[#666A70] dark:text-[#9DA2A9] hover:bg-[#ECEDEA] dark:hover:bg-[#24272B] hover:text-[#17181A] dark:hover:text-[#F7F7F5]"
+                  }`}
+                >
+                  {tab === "ALL" ? "All Products" : tab}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
@@ -78,7 +113,7 @@ export function CatalogueSection({ products }: CatalogueSectionProps) {
         </div>
       ) : (
         <div className="py-16 text-center text-[#666A70] dark:text-[#9DA2A9] font-sans">
-          No products found in this category.
+          No products found matching your search or category filter.
         </div>
       )}
     </section>

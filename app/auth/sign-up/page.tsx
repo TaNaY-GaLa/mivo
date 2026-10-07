@@ -15,14 +15,19 @@ export default function SignUpPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [phone, setPhone] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !email || !password) {
-      setErrorMsg("Please fill in all required fields.");
+    if (!name || !email || !password || !confirmPassword) {
+      setErrorMsg("Please fill in all fields.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setErrorMsg("Passwords do not match. Please re-enter.");
       return;
     }
 
@@ -47,9 +52,9 @@ export default function SignUpPage() {
         toast.error("Sign Up Failed", { description: msg });
       } else {
         toast.success("Account Created!", {
-          description: "Welcome to Mivo. You can now access your account.",
+          description: "Welcome to Mivo. Accessing your store catalogue...",
         });
-        router.push("/account");
+        router.push("/");
         router.refresh();
       }
     } catch {
@@ -62,19 +67,29 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="mx-auto max-w-md space-y-6 px-4 py-20 sm:px-6 text-[#17181A] dark:text-[#F7F7F5]">
-      <div className="text-center space-y-2">
-        <h1 className="text-3xl font-serif text-[#17181A] dark:text-[#F7F7F5]">
-          Create a Mivo Account
+    <div className="mx-auto max-w-md space-y-8 px-4 py-16 sm:px-6 text-[#17181A] dark:text-[#F7F7F5]">
+      {/* Header */}
+      <div className="text-center space-y-3">
+        <Link href="/" className="inline-block group">
+          <span className="font-serif text-4xl text-[#17181A] dark:text-[#F7F7F5] group-hover:text-[#666A70] transition-colors">
+            Mivo
+          </span>
+          <span className="text-xs text-[#666A70] dark:text-[#9DA2A9] font-sans tracking-wide block mt-0.5">
+            Things you&apos;ll want to keep around.
+          </span>
+        </Link>
+        <h1 className="text-2xl font-serif text-[#17181A] dark:text-[#F7F7F5] pt-2">
+          Create your Mivo account
         </h1>
-        <p className="text-xs text-[#666A70] dark:text-[#9DA2A9] font-sans">
-          Join Mivo for seamless checkout, order tracking, and member access.
+        <p className="text-xs text-[#666A70] dark:text-[#9DA2A9]">
+          Join Mivo for curated shopping, order tracking, and member access.
         </p>
       </div>
 
+      {/* Main Form */}
       <div className="rounded-xl border border-[#E5E6E3] dark:border-[#2D3035] bg-[#FFFFFF] dark:bg-[#1E2023] p-8 shadow-sm space-y-6">
         {errorMsg && (
-          <div className="rounded-lg border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/40 p-3.5 text-xs text-red-600 dark:text-red-300">
+          <div className="rounded-md border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/40 p-3.5 text-xs text-red-600 dark:text-red-300">
             {errorMsg}
           </div>
         )}
@@ -111,22 +126,8 @@ export default function SignUpPage() {
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="phone" className="text-[11px] font-semibold uppercase tracking-widest text-[#666A70] dark:text-[#9DA2A9]">
-              Mobile Phone (+91)
-            </Label>
-            <Input
-              id="phone"
-              type="tel"
-              placeholder="9823456781"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              className="rounded-md border-[#E5E6E3] dark:border-[#2D3035] bg-[#F7F7F5] dark:bg-[#17181A] text-[#17181A] dark:text-[#F7F7F5] placeholder:text-[#666A70] focus:border-[#A8B2A5]"
-            />
-          </div>
-
-          <div className="space-y-1.5">
             <Label htmlFor="password" className="text-[11px] font-semibold uppercase tracking-widest text-[#666A70] dark:text-[#9DA2A9]">
-              Password (min. 8 characters) *
+              Password *
             </Label>
             <Input
               id="password"
@@ -134,6 +135,22 @@ export default function SignUpPage() {
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={8}
+              className="rounded-md border-[#E5E6E3] dark:border-[#2D3035] bg-[#F7F7F5] dark:bg-[#17181A] text-[#17181A] dark:text-[#F7F7F5] placeholder:text-[#666A70] focus:border-[#A8B2A5]"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="confirmPassword" className="text-[11px] font-semibold uppercase tracking-widest text-[#666A70] dark:text-[#9DA2A9]">
+              Confirm Password *
+            </Label>
+            <Input
+              id="confirmPassword"
+              type="password"
+              placeholder="••••••••"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
               required
               minLength={8}
               className="rounded-md border-[#E5E6E3] dark:border-[#2D3035] bg-[#F7F7F5] dark:bg-[#17181A] text-[#17181A] dark:text-[#F7F7F5] placeholder:text-[#666A70] focus:border-[#A8B2A5]"
@@ -172,7 +189,7 @@ export default function SignUpPage() {
 
       <div className="flex items-center justify-center gap-2 text-xs text-[#666A70] dark:text-[#9DA2A9]">
         <ShieldCheck className="h-4 w-4 text-[#A8B2A5]" />
-        <span>Encrypted session validation</span>
+        <span>Encrypted Session Validation</span>
       </div>
     </div>
   );

@@ -22,6 +22,7 @@ export default async function AccountPage() {
     id: string;
     orderRef: string;
     status: string;
+    paymentMethod: string;
     total: number;
     createdAt: Date;
     items: Array<{ productName: string; quantity: number }>;
@@ -33,7 +34,7 @@ export default async function AccountPage() {
       include: {
         orders: {
           orderBy: { createdAt: "desc" },
-          take: 5,
+          take: 10,
           include: {
             items: {
               select: { productName: true, quantity: true },
@@ -107,11 +108,11 @@ export default async function AccountPage() {
           </div>
 
           {/* Orders Overview */}
-          <div className="md:col-span-2 rounded-xl border border-[#E5E6E3] dark:border-[#2D3035] bg-[#FFFFFF] dark:bg-[#1E2023] p-6 space-y-5 shadow-sm">
+          <div id="orders" className="md:col-span-2 rounded-xl border border-[#E5E6E3] dark:border-[#2D3035] bg-[#FFFFFF] dark:bg-[#1E2023] p-6 space-y-5 shadow-sm">
             <div className="flex items-center justify-between border-b border-[#E5E6E3] dark:border-[#2D3035] pb-3">
               <h2 className="text-[11px] font-semibold uppercase tracking-widest text-[#666A70] dark:text-[#9DA2A9] flex items-center gap-2">
                 <Package className="h-4 w-4 text-[#A8B2A5]" />
-                Recent Orders ({ordersCount})
+                Order History ({ordersCount})
               </h2>
             </div>
 
@@ -128,14 +129,20 @@ export default async function AccountPage() {
             ) : (
               <div className="space-y-3">
                 {recentOrders.map((order) => (
-                  <div
+                  <Link
                     key={order.id}
-                    className="flex items-center justify-between p-4 rounded-lg border border-[#E5E6E3] dark:border-[#2D3035] bg-[#F7F7F5] dark:bg-[#17181A] text-xs"
+                    href={`/account/orders/${order.id}`}
+                    className="flex items-center justify-between p-4 rounded-lg border border-[#E5E6E3] dark:border-[#2D3035] bg-[#F7F7F5] dark:bg-[#17181A] hover:border-[#17181A] dark:hover:border-[#F7F7F5] transition-all text-xs group"
                   >
                     <div className="space-y-1">
-                      <p className="font-semibold text-[#17181A] dark:text-[#F7F7F5]">
-                        #{order.orderRef}
-                      </p>
+                      <div className="flex items-center gap-2">
+                        <p className="font-semibold text-[#17181A] dark:text-[#F7F7F5] group-hover:underline">
+                          #{order.orderRef}
+                        </p>
+                        <span className="text-[10px] text-[#666A70] dark:text-[#9DA2A9]">
+                          ({order.paymentMethod})
+                        </span>
+                      </div>
                       <p className="text-[#666A70] dark:text-[#9DA2A9] text-[11px]">
                         {order.items.map((i) => `${i.productName} (${i.quantity})`).join(", ")}
                       </p>
@@ -148,7 +155,7 @@ export default async function AccountPage() {
                         ₹{(order.total / 100).toLocaleString("en-IN")}
                       </p>
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             )}

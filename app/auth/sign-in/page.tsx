@@ -4,7 +4,7 @@ import { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "@/lib/auth-client";
-import { Loader2, ArrowRight, ShieldCheck } from "lucide-react";
+import { Loader2, ArrowRight, ShieldCheck, UserCheck } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
@@ -12,7 +12,7 @@ import { toast } from "sonner";
 function SignInContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") ?? "/account";
+  const callbackUrl = searchParams.get("callbackUrl") ?? "/";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -22,7 +22,7 @@ function SignInContent() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
-      setErrorMsg("Please fill in all fields.");
+      setErrorMsg("Please enter both email and password.");
       return;
     }
 
@@ -45,7 +45,7 @@ function SignInContent() {
         router.refresh();
       }
     } catch {
-      const fallback = "An error occurred during sign in.";
+      const fallback = "An unexpected error occurred during sign in.";
       setErrorMsg(fallback);
       toast.error("Sign In Error", { description: fallback });
     } finally {
@@ -53,20 +53,36 @@ function SignInContent() {
     }
   };
 
+  const handleFillDemo = (demoEmail: string, demoPass: string) => {
+    setEmail(demoEmail);
+    setPassword(demoPass);
+    setErrorMsg(null);
+  };
+
   return (
-    <div className="mx-auto max-w-md space-y-6 px-4 py-20 sm:px-6 text-[#17181A] dark:text-[#F7F7F5]">
-      <div className="text-center space-y-2">
-        <h1 className="text-3xl font-serif text-[#17181A] dark:text-[#F7F7F5]">
-          Sign in to Mivo
+    <div className="mx-auto max-w-md space-y-8 px-4 py-16 sm:px-6 text-[#17181A] dark:text-[#F7F7F5]">
+      {/* Brand Header */}
+      <div className="text-center space-y-3">
+        <Link href="/" className="inline-block group">
+          <span className="font-serif text-4xl text-[#17181A] dark:text-[#F7F7F5] group-hover:text-[#666A70] transition-colors">
+            Mivo
+          </span>
+          <span className="text-xs text-[#666A70] dark:text-[#9DA2A9] font-sans tracking-wide block mt-0.5">
+            Things you&apos;ll want to keep around.
+          </span>
+        </Link>
+        <h1 className="text-2xl font-serif text-[#17181A] dark:text-[#F7F7F5] pt-2">
+          Welcome back
         </h1>
-        <p className="text-xs text-[#666A70] dark:text-[#9DA2A9] font-sans">
-          Access your orders, saved bag, and member preferences.
+        <p className="text-xs text-[#666A70] dark:text-[#9DA2A9]">
+          Sign in to access your curated catalogue, bag, and order history.
         </p>
       </div>
 
+      {/* Main Sign-In Card */}
       <div className="rounded-xl border border-[#E5E6E3] dark:border-[#2D3035] bg-[#FFFFFF] dark:bg-[#1E2023] p-8 shadow-sm space-y-6">
         {errorMsg && (
-          <div className="rounded-lg border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/40 p-3.5 text-xs text-red-600 dark:text-red-300">
+          <div className="rounded-md border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/40 p-3.5 text-xs text-red-600 dark:text-red-300">
             {errorMsg}
           </div>
         )}
@@ -74,7 +90,7 @@ function SignInContent() {
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-1.5">
             <Label htmlFor="email" className="text-[11px] font-semibold uppercase tracking-widest text-[#666A70] dark:text-[#9DA2A9]">
-              Email Address
+              Email
             </Label>
             <Input
               id="email"
@@ -121,20 +137,45 @@ function SignInContent() {
           </button>
         </form>
 
-        <div className="border-t border-[#E5E6E3] dark:border-[#2D3035] pt-4 text-center text-xs text-[#666A70] dark:text-[#9DA2A9]">
+        {/* Demo Helper Quick-Fill Buttons */}
+        <div className="pt-4 border-t border-[#E5E6E3] dark:border-[#2D3035] space-y-2">
+          <p className="text-[10px] uppercase tracking-widest font-semibold text-[#666A70] dark:text-[#9DA2A9] text-center">
+            Development Quick Fill
+          </p>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => handleFillDemo("arjun.sharma.1@example.com", "Member@mivo123")}
+              className="inline-flex items-center justify-center gap-1.5 px-3 py-2 text-[11px] rounded-md border border-[#E5E6E3] dark:border-[#2D3035] bg-[#ECEDEA] dark:bg-[#24272B] hover:bg-[#E5E6E3] transition-colors text-[#17181A] dark:text-[#F7F7F5] cursor-pointer"
+            >
+              <UserCheck className="w-3.5 h-3.5 text-[#666A70]" />
+              Member Demo
+            </button>
+            <button
+              type="button"
+              onClick={() => handleFillDemo("admin@mivo.example.com", "Admin@mivo123")}
+              className="inline-flex items-center justify-center gap-1.5 px-3 py-2 text-[11px] rounded-md border border-[#E5E6E3] dark:border-[#2D3035] bg-[#ECEDEA] dark:bg-[#24272B] hover:bg-[#E5E6E3] transition-colors text-[#17181A] dark:text-[#F7F7F5] cursor-pointer"
+            >
+              <UserCheck className="w-3.5 h-3.5 text-[#666A70]" />
+              Admin Demo
+            </button>
+          </div>
+        </div>
+
+        <div className="pt-2 text-center text-xs text-[#666A70] dark:text-[#9DA2A9]">
           Don&apos;t have an account?{" "}
           <Link
             href="/auth/sign-up"
             className="font-semibold text-[#17181A] dark:text-[#F7F7F5] underline"
           >
-            Create account
+            Create Account
           </Link>
         </div>
       </div>
 
       <div className="flex items-center justify-center gap-2 text-xs text-[#666A70] dark:text-[#9DA2A9]">
         <ShieldCheck className="h-4 w-4 text-[#A8B2A5]" />
-        <span>Encrypted session authorization</span>
+        <span>Encrypted Session Authorization</span>
       </div>
     </div>
   );
