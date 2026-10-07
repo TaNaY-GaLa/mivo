@@ -45,8 +45,14 @@ export const auth = betterAuth({
   },
 
   secret: process.env.BETTER_AUTH_SECRET!,
-  baseURL: process.env.BETTER_AUTH_URL ?? "http://localhost:3000",
+  baseURL: process.env.BETTER_AUTH_URL || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
   basePath: "/api/auth",
+  trustedOrigins: [
+    process.env.BETTER_AUTH_URL,
+    process.env.NEXT_PUBLIC_APP_URL,
+    process.env.URL, // Netlify standard system environment variable
+    "https://shopwithmivo.netlify.app"
+  ].filter(Boolean) as string[],
 });
 
 export type Session = typeof auth.$Infer.Session;
