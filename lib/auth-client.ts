@@ -1,5 +1,5 @@
-/**
- * lib/auth-client.ts — Better Auth client-side instance
+ï»¿/**
+ * lib/auth-client.ts - Better Auth client-side instance
  * Safe to import in Client Components.
  */
 
