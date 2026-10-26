@@ -22,8 +22,9 @@ export interface OrderResult {
     state: string;
     pincode: string;
     paymentMethod: string;
-    subtotal: number;
-    total: number;
+    subtotal: number;   // before GST, in INR
+    gst: number;        // 18% GST, in INR
+    total: number;      // subtotal + GST, in INR
     itemsCount: number;
     createdAt: string;
   };
@@ -113,6 +114,10 @@ export async function processCheckoutOrder(
 
   let createdDbOrder = null;
 
+  // Calculate GST (18%) on top of base subtotal
+  const gstAmount = Math.round(subtotal * 0.18);
+  const grandTotal = subtotal + gstAmount;
+
   try {
     // 5. Prisma Transaction: Create Order + OrderItems + AuditLog together atomically
     createdDbOrder = await prisma.$transaction(async (tx) => {
@@ -121,8 +126,8 @@ export async function processCheckoutOrder(
           orderRef,
           status: OrderStatus.CONFIRMED,
           paymentMethod: prismaPaymentMethod,
-          subtotal: Math.round(subtotal * 100), // in paise
-          total: Math.round(subtotal * 100),
+          subtotal: Math.round(subtotal * 100),   // in paise, before GST
+          total: Math.round(grandTotal * 100),     // in paise, including GST
           customerName: validData.fullName,
           customerEmail: validData.email,
           customerPhone: validData.phone,
@@ -150,7 +155,9 @@ export async function processCheckoutOrder(
           orderId: order.id,
           metadata: {
             orderRef: order.orderRef,
-            total: subtotal,
+            subtotal,
+            gst: gstAmount,
+            grandTotal,
             itemsCount: totalItemsCount,
             paymentMethod: validData.paymentMethod,
           },
@@ -175,7 +182,7 @@ export async function processCheckoutOrder(
       orderRef,
       items: verifiedItems,
       subtotal: Math.round(subtotal * 100),
-      total: Math.round(subtotal * 100),
+      total: Math.round(grandTotal * 100),
       paymentMethod: validData.paymentMethod,
       address: validData.address,
       city: validData.city,
@@ -201,7 +208,8 @@ export async function processCheckoutOrder(
       pincode: validData.pincode,
       paymentMethod: validData.paymentMethod,
       subtotal,
-      total: subtotal,
+      gst: gstAmount,
+      total: grandTotal,
       itemsCount: totalItemsCount,
       createdAt: createdDbOrder?.createdAt.toISOString() ?? new Date().toISOString(),
     },

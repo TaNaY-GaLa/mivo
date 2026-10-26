@@ -112,8 +112,14 @@ export default async function AccountPage() {
             <div className="flex items-center justify-between border-b border-[#E5E6E3] dark:border-[#2D3035] pb-3">
               <h2 className="text-[11px] font-semibold uppercase tracking-widest text-[#666A70] dark:text-[#9DA2A9] flex items-center gap-2">
                 <Package className="h-4 w-4 text-[#A8B2A5]" />
-                Order History ({ordersCount})
+                Recent Orders ({ordersCount})
               </h2>
+              <Link
+                href="/account/orders"
+                className="text-[10px] uppercase tracking-widest font-semibold text-[#17181A] dark:text-[#F7F7F5] hover:underline"
+              >
+                View All →
+              </Link>
             </div>
 
             {recentOrders.length === 0 ? (

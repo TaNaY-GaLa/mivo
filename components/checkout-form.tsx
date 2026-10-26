@@ -351,6 +351,12 @@ export function CheckoutForm() {
         </div>
       </div>
 
+      {/* Demo Payment Notice */}
+      <div className="rounded-2xl border border-amber-200 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-950/20 p-4 text-xs text-amber-800 dark:text-amber-300 space-y-1">
+        <p className="font-semibold uppercase tracking-widest">Demo Payment — College Project</p>
+        <p>No real payment is processed. Clicking Place Order simulates a successful payment and creates a real order record in the database.</p>
+      </div>
+
       {/* Submit */}
       <button
         type="submit"
@@ -364,7 +370,7 @@ export function CheckoutForm() {
           </>
         ) : (
           <>
-            Place Order
+            Place Order — Demo Payment
             <ArrowRight className="w-4 h-4" />
           </>
         )}

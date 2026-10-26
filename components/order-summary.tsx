@@ -3,10 +3,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { ShieldCheck, Truck, ShoppingBag } from "lucide-react";
+import { ShieldCheck, Truck, ShoppingBag, Tag } from "lucide-react";
 import { useCartStore } from "@/store/cart-store";
 import { formatPrice } from "@/lib/utils";
 import { useHasMounted } from "@/lib/use-mounted";
+
+const GST_RATE = 0.18;
 
 export function OrderSummary() {
   const mounted = useHasMounted();
@@ -21,9 +23,9 @@ export function OrderSummary() {
   const subtotal = mounted
     ? activeItems.reduce((t, i) => t + i.product.price * i.quantity, 0)
     : 0;
-  const shipping = 0;
-  const tax = Math.round((subtotal * 18) / 118);
-  const total = subtotal + shipping;
+  const gst = Math.round(subtotal * GST_RATE);
+  const delivery = 0;
+  const grand = subtotal + gst + delivery;
 
   if (!mounted) {
     return (
@@ -59,6 +61,7 @@ export function OrderSummary() {
         </div>
       ) : (
         <>
+          {/* Items list */}
           <div className="max-h-80 overflow-y-auto divide-y divide-[#E5E6E3] dark:divide-[#2D3035] pr-1">
             {activeItems.map(({ product, quantity }) => (
               <div key={product.id} className="flex gap-3 py-3 first:pt-0">
@@ -88,11 +91,20 @@ export function OrderSummary() {
             ))}
           </div>
 
+          {/* Pricing breakdown with GST */}
           <div className="space-y-2.5 text-xs text-[#666A70] dark:text-[#9DA2A9] pt-4 border-t border-[#E5E6E3] dark:border-[#2D3035]">
             <div className="flex justify-between">
-              <span>Subtotal</span>
+              <span>Subtotal (before GST)</span>
               <span className="font-mono font-medium text-[#17181A] dark:text-[#F7F7F5]">
                 {formatPrice(subtotal)}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="inline-flex items-center gap-1">
+                <Tag className="w-3 h-3 text-[#A8B2A5]" /> GST (18%)
+              </span>
+              <span className="font-mono font-medium text-[#17181A] dark:text-[#F7F7F5]">
+                + {formatPrice(gst)}
               </span>
             </div>
             <div className="flex justify-between">
@@ -101,22 +113,18 @@ export function OrderSummary() {
               </span>
               <span className="font-mono font-semibold text-emerald-600 dark:text-emerald-400">FREE</span>
             </div>
-            <div className="flex justify-between">
-              <span>Taxes (Included 18% GST)</span>
-              <span className="font-mono font-medium text-[#17181A] dark:text-[#F7F7F5]">
-                {formatPrice(tax)}
-              </span>
-            </div>
           </div>
 
-          <div className="flex justify-between items-center text-sm font-bold text-[#17181A] dark:text-[#F7F7F5] pt-4 border-t border-[#E5E6E3] dark:border-[#2D3035]">
-            <span>Total Amount</span>
-            <span className="text-lg font-mono">{formatPrice(total)}</span>
+          {/* Grand Total */}
+          <div className="flex justify-between items-center text-sm font-bold text-[#17181A] dark:text-[#F7F7F5] pt-4 border-t-2 border-[#17181A] dark:border-[#F7F7F5]">
+            <span>Grand Total (incl. GST)</span>
+            <span className="text-lg font-mono">{formatPrice(grand)}</span>
           </div>
 
+          {/* Trust note */}
           <div className="pt-2 flex items-center gap-2 text-[11px] text-[#666A70] dark:text-[#9DA2A9] bg-[#F7F7F5] dark:bg-[#17181A] p-3.5 rounded-2xl border border-[#E5E6E3] dark:border-[#2D3035]">
             <ShieldCheck className="w-4 h-4 text-[#A8B2A5] shrink-0" />
-            <span>Complimentary shipping & 30-day effortless return policy.</span>
+            <span>Free shipping & 30-day effortless return policy. GST of {formatPrice(gst)} is applicable.</span>
           </div>
         </>
       )}

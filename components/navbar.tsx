@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Menu, X, User, LogOut, Shield, Package, ChevronDown } from "lucide-react";
+import { Menu, X, User, LogOut, Shield, Package, ChevronDown, ShoppingBag } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { CartButton } from "@/components/cart-button";
 import { useSession, signOut } from "@/lib/auth-client";
@@ -86,12 +86,12 @@ export function Navbar() {
                   </Link>
 
                   <Link
-                    href="/account#orders"
+                    href="/account/orders"
                     onClick={() => setAccountMenuOpen(false)}
                     className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[#17181A] dark:text-[#F7F7F5] hover:bg-[#ECEDEA] dark:hover:bg-[#24272B] transition-colors"
                   >
                     <Package className="h-4 w-4 text-[#666A70]" />
-                    Order History
+                    My Orders
                   </Link>
 
                   {(session.user as { role?: string }).role === "ADMIN" && (
@@ -137,7 +137,7 @@ export function Navbar() {
           )}
 
           <ThemeToggle />
-          {session?.user && <CartButton />}
+          <CartButton />
 
           {/* Mobile Menu Button */}
           {session?.user && (
@@ -179,6 +179,13 @@ export function Navbar() {
               Editorial
             </Link>
             <Link
+              href="/cart"
+              onClick={() => setMobileMenuOpen(false)}
+              className="text-[#17181A] dark:text-[#F7F7F5] py-1 flex items-center gap-2"
+            >
+              <ShoppingBag className="h-4 w-4 text-[#666A70]" /> Shopping Bag
+            </Link>
+            <Link
               href="/account"
               onClick={() => setMobileMenuOpen(false)}
               className="text-[#17181A] dark:text-[#F7F7F5] py-1 flex items-center gap-2"
@@ -186,11 +193,11 @@ export function Navbar() {
               <User className="h-4 w-4 text-[#666A70]" /> Account ({session.user.name})
             </Link>
             <Link
-              href="/account#orders"
+              href="/account/orders"
               onClick={() => setMobileMenuOpen(false)}
               className="text-[#17181A] dark:text-[#F7F7F5] py-1 flex items-center gap-2"
             >
-              <Package className="h-4 w-4 text-[#666A70]" /> Order History
+              <Package className="h-4 w-4 text-[#666A70]" /> My Orders
             </Link>
             {(session.user as { role?: string }).role === "ADMIN" && (
               <Link
